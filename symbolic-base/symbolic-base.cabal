@@ -103,6 +103,7 @@ library
       ZkFold.Base.Algebra.EllipticCurve.Ed25519
       ZkFold.Base.Algebra.EllipticCurve.Pairing
       ZkFold.Base.Algebra.EllipticCurve.Secp256k1
+      ZkFold.Base.Algebra.EllipticCurve.TinyJJ
       ZkFold.Base.Algebra.Polynomials.Multivariate
       ZkFold.Base.Algebra.Polynomials.Multivariate.Groebner
       ZkFold.Base.Algebra.Polynomials.Multivariate.Monomial
@@ -248,7 +249,7 @@ library
 test-suite symbolic-base-test
     import: options-exe
     type: exitcode-stdio-1.0
-    ghc-options: 
+    ghc-options:
         "-with-rtsopts=-A128M -AL256m -qb0 -qn4 -N"
     main-is: Main.hs
     other-modules:
@@ -322,7 +323,7 @@ benchmark bench-poly-mul
       tasty-bench,
       vector,
 
-benchmark bench-in-circuit-ec 
+benchmark bench-in-circuit-ec
     import:           options-exe
     main-is:          BenchEC.hs
     hs-source-dirs:   bench
