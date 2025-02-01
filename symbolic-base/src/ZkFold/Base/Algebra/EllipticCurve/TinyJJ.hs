@@ -28,8 +28,7 @@ import qualified ZkFold.Symbolic.Data.Eq                    as Symbolic
 -------------------------------- Introducing Fields ----------------------------------
 
 -- The order of the curve over the base field
-type TinyJJ_Scalar = 20
--- FIXME: not a prime
+type TinyJJ_Scalar = 5  -- the large prime factor of 20
 instance Prime TinyJJ_Scalar
 
 -- The order of the base field
@@ -46,10 +45,10 @@ instance IrreduciblePoly Fq IP1 where
 type Fq4 = Ext4 Fq IP1 -- FIXME: Ext4 is missing
 
 
-------------------------------------- BLS12-381 --------------------------------------
+------------------------------------- TinyJJ --------------------------------------
 
 instance Field field => WeierstrassCurve "TinyJJ" field where
-  weierstrassA = fromConstant (8 :: Natural) -- FIXME: won't compile
+  weierstrassA = fromConstant (8 :: Natural)
   weierstrassB = fromConstant (8 :: Natural)
 
 type TinyJJ_Point baseField = Weierstrass "TinyJJ" (Point Bool baseField)
@@ -78,21 +77,22 @@ type TinyJJ_Point baseField = Weierstrass "TinyJJ" (Point Bool baseField)
 --             y = if bigY then max y' y'' else min y' y''
 --         in  pointXY x y
 
------------------------------------- BLS12-381 G1 ------------------------------------
+------------------------------------ TinyJJ G1 ------------------------------------
 
 type TinyJJ_G1_Point = TinyJJ_Point Fq
 
 -- type TinyJJ_G1_CompressedPoint = TinyJJ_CompressedPoint Fq
 
-instance CyclicGroup TinyJJ_Point where
-  type ScalarFieldOf TinyJJ_Point = Fr
+instance CyclicGroup TinyJJ_G1_Point where
+  type ScalarFieldOf TinyJJ_G1_Point = Fr
   pointGen = pointXY 1 2 -- FIXME: check!
 
 instance Scale Fr TinyJJ_G1_Point where
   scale n x = scale (toConstant n) x
 
------------------------------------- BLS12-381 G2 ------------------------------------
+------------------------------------ TinyJJ G2 ------------------------------------
 
+{-  FIXME: figure this out!
 type TinyJJ_G2_Point = TinyJJ_Point Fq4
 
 -- type BLS12_381_G2_CompressedPoint = TinyJJ_CompressedPoint Fq2
@@ -103,6 +103,7 @@ instance CyclicGroup TinyJJ_G2_Point where
 
 instance Scale Fr TinyJJ_G2_Point where
   scale n x = scale (toConstant n) x
+-}
 
 ------------------------------------ Encoding ------------------------------------
 

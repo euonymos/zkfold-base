@@ -102,6 +102,7 @@ class
   Weierstrass curves have @a = zero@ and nonzero @b@ and we do too.
 -}
 class Field field => WeierstrassCurve (curve :: Symbol) field where
+  weierstrassA :: field
   weierstrassB :: field
 
 {- | A twisted Edwards curve is defined by the equation:
@@ -175,7 +176,9 @@ instance
     type BaseFieldOf (Weierstrass curve (Point bool field)) = field
     isOnCurve (Weierstrass (Point x y isInf)) =
       if isInf then x == zero else
-      let b = weierstrassB @curve in y*y == x*x*x + b
+        let a = weierstrassA @curve
+            b = weierstrassB @curve
+        in y*y == x*x*x + a*x + b
 deriving newtype instance
   ( SymbolicOutput bool
   , SymbolicOutput field
