@@ -85,7 +85,7 @@ type TinyJJ_G1_Point = TinyJJ_Point Fq
 
 instance CyclicGroup TinyJJ_G1_Point where
   type ScalarFieldOf TinyJJ_G1_Point = Fr
-  pointGen = pointXY 1 2 -- FIXME: check!
+  pointGen = pointXY 6 5  -- FIXME: check!
 
 instance Scale Fr TinyJJ_G1_Point where
   scale n x = scale (toConstant n) x

@@ -25,11 +25,12 @@ module ZkFold.Base.Algebra.EllipticCurve.Class
   , AffinePoint (..)
   ) where
 
+-- import           GHC.IO                           (unsafePerformIO)
 import           Data.Kind                        (Type)
 import           Data.String                      (fromString)
 import           GHC.Generics
 import           GHC.TypeLits                     (Symbol)
-import           Prelude                          (Integer, return, type (~), ($), (>>=))
+import           Prelude                          (Integer, return, type (~), ($), (>>=))  -- putStrLn, show
 import qualified Prelude
 import           Test.QuickCheck                  hiding (scale)
 
@@ -103,6 +104,7 @@ class
 -}
 class Field field => WeierstrassCurve (curve :: Symbol) field where
   weierstrassA :: field
+  weierstrassA = zero
   weierstrassB :: field
 
 {- | A twisted Edwards curve is defined by the equation:
@@ -215,7 +217,10 @@ instance
                        then (x0 * x0 + x0 * x0 + x0 * x0) // (y0 + y0) -- tangent
                        else (y1 - y0) // (x1 - x0) -- secant
                x2 = slope * slope - x0 - x1
+               -- !_ = unsafePerformIO $ putStrLn (show slope)
+               -- !_ = unsafePerformIO $ putStrLn (show x2)
                y2 = slope * (x0 - x2) - y0
+               -- !_ = unsafePerformIO $ putStrLn (show y2)
             in pointXY x2 y2
 instance
   ( WeierstrassCurve curve field
