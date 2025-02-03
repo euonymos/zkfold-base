@@ -24,6 +24,7 @@ import           ZkFold.Base.Algebra.Polynomials.Univariate
 import           ZkFold.Base.Data.ByteString
 import qualified ZkFold.Symbolic.Data.Conditional           as Symbolic
 import qualified ZkFold.Symbolic.Data.Eq                    as Symbolic
+import Data.Function (fix)
 
 -------------------------------- Introducing Fields ----------------------------------
 
@@ -74,12 +75,43 @@ type BLS6_6_G1_Point = Weierstrass "BLS6-6-G1" (Point Fq)
 --             y = if bigY then max y' y'' else min y' y''
 --         in  pointXY x y
 
+type BLS6_6_Point = Weierstrass "BLS6-6" (Point Fq)
+
+
+
 instance CyclicGroup BLS6_6_G1_Point where
   type ScalarFieldOf BLS6_6_G1_Point = Fr
   pointGen = pointXY 13 15 -- This is the generator for G1[13]
 
 instance Scale Fr BLS6_6_G1_Point where
   scale n x = scale (toConstant n) x
+
+cyclic :: BLS6_6_G1_Point -> [BLS6_6_G1_Point]
+cyclic = fix $ \rec e -> e : rec (e + pointGen)
+
+{-
+>>> take 13 $ cyclic pointGen
+[(13, 15),(33, 34),(38, 15),(35, 28),(26, 34),(27, 34),(27, 9),(26, 9),(35, 15),(38, 28),(33, 9),(13, 28),pointInf]
+
+sage: F43 = GF(43)
+sage: BLS66 = EllipticCurve(F43,[0,6])
+sage: gen = BLS66(13,15)
+sage: [ x*gen for x in range(0,13) ]
+[(0 : 1 : 0),
+ (13 : 15 : 1),
+ (33 : 34 : 1),
+ (38 : 15 : 1),
+ (35 : 28 : 1),
+ (26 : 34 : 1),
+ (27 : 34 : 1),
+ (27 : 9 : 1),
+ (26 : 9 : 1),
+ (35 : 15 : 1),
+ (38 : 28 : 1),
+ (33 : 9 : 1),
+ (13 : 28 : 1)]
+
+-}
 
 ------------------------------------ BLS6-6-G2 ------------------------------------
 
