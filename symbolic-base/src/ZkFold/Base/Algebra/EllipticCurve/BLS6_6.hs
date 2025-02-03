@@ -84,6 +84,7 @@ instance CyclicGroup BLS6_6_G1_Point where
   pointGen = pointXY 13 15 -- This is the generator for G1[13]
 
 instance Scale Fr BLS6_6_G1_Point where
+  scale :: Fr -> BLS6_6_G1_Point -> BLS6_6_G1_Point
   scale n x = scale (toConstant n) x
 
 cyclic :: BLS6_6_G1_Point -> [BLS6_6_G1_Point]
@@ -91,6 +92,11 @@ cyclic = fix $ \rec e -> e : rec (e + pointGen)
 
 {-
 >>> take 13 $ cyclic pointGen
+[(13, 15),(33, 34),(38, 15),(35, 28),(26, 34),(27, 34),(27, 9),(26, 9),(35, 15),(38, 28),(33, 9),(13, 28),pointInf]
+
+or you can use scale:
+
+>>> (flip scale pointGen) <$> [1..13] :: [BLS6_6_G1_Point]
 [(13, 15),(33, 34),(38, 15),(35, 28),(26, 34),(27, 34),(27, 9),(26, 9),(35, 15),(38, 28),(33, 9),(13, 28),pointInf]
 
 sage: F43 = GF(43)
