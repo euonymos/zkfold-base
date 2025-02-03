@@ -90,7 +90,7 @@ instance CyclicGroup TinyJJ_G1_Point where
   pointGen = pointXY 10 10  -- FIXME: check!
 
 cyclic :: TinyJJ_G1_Point -> [TinyJJ_G1_Point]
-cyclic = fix $ \rec gen -> gen : rec (gen + gen)
+cyclic = fix $ \rec point -> point : rec (point + pointGen)
 
 {-
 
@@ -98,13 +98,13 @@ cyclic = fix $ \rec gen -> gen : rec (gen + gen)
 (10, 3)
 
 >>> scale 3 (pointGen :: TinyJJ_G1_Point)
-(10, 10)
+pointInf
 
 sage: TJJ(10,10) + TJJ(10,10)
 (5 : 2 : 1)
 
 >>> take 21 (cyclic pointGen)
-[(10, 10),(10, 3),(10, 10),(10, 3),(10, 10),(10, 3),(10, 10),(10, 3),(10, 10),(10, 3),(10, 10),(10, 3),(10, 10),(10, 3),(10, 10),(10, 3),(10, 10),(10, 3),(10, 10),(10, 3),(10, 10)]
+[(10, 10),(10, 3),pointInf,(10, 10),(10, 3),pointInf,(10, 10),(10, 3),pointInf,(10, 10),(10, 3),pointInf,(10, 10),(10, 3),pointInf,(10, 10),(10, 3),pointInf,(10, 10),(10, 3),pointInf]
 
 >>>isOnCurve @Bool (pointXY 10 10 :: TinyJJ_G1_Point)
 True
