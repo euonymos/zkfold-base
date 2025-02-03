@@ -204,8 +204,9 @@ deriving newtype instance HasPointInf point
 deriving newtype instance Planar field point
   => Planar field (Weierstrass curve point)
 instance
-  ( WeierstrassCurve curve field
-  , Conditional bool bool
+  (
+    -- WeierstrassCurve curve field
+    Conditional bool bool
   , Conditional bool field
   , Eq bool field
   , Field field
@@ -217,10 +218,7 @@ instance
                        then (x0 * x0 + x0 * x0 + x0 * x0) // (y0 + y0) -- tangent
                        else (y1 - y0) // (x1 - x0) -- secant
                x2 = slope * slope - x0 - x1
-               -- !_ = unsafePerformIO $ putStrLn (show slope)
-               -- !_ = unsafePerformIO $ putStrLn (show x2)
                y2 = slope * (x0 - x2) - y0
-               -- !_ = unsafePerformIO $ putStrLn (show y2)
             in pointXY x2 y2
 instance
   ( WeierstrassCurve curve field

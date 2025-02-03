@@ -25,6 +25,8 @@ import           ZkFold.Base.Data.ByteString
 import qualified ZkFold.Symbolic.Data.Conditional           as Symbolic
 import qualified ZkFold.Symbolic.Data.Eq                    as Symbolic
 
+import Data.Function (fix)
+
 -------------------------------- Introducing Fields ----------------------------------
 
 -- The order of the curve over the base field
@@ -38,11 +40,11 @@ instance Prime TinyJJ_Base
 type Fr = Zp TinyJJ_Scalar -- F20
 type Fq = Zp TinyJJ_Base   -- F13
 
--- Extension F13^4
-type IP1 = "IP1"
-instance IrreduciblePoly Fq IP1 where
-    irreduciblePoly = toPoly [2, 0, 0, 0, 1]  -- 2 + t^4
-type Fq4 = Ext4 Fq IP1 -- FIXME: Ext4 is missing
+-- -- Extension F13^4
+-- type IP1 = "IP1"
+-- instance IrreduciblePoly Fq IP1 where
+--     irreduciblePoly = toPoly [2, 0, 0, 0, 1]  -- 2 + t^4
+-- type Fq4 = Ext4 Fq IP1 -- FIXME: Ext4 is missing
 
 
 ------------------------------------- TinyJJ --------------------------------------
@@ -85,7 +87,32 @@ type TinyJJ_G1_Point = TinyJJ_Point Fq
 
 instance CyclicGroup TinyJJ_G1_Point where
   type ScalarFieldOf TinyJJ_G1_Point = Fr
-  pointGen = pointXY 6 5  -- FIXME: check!
+  pointGen = pointXY 10 10  -- FIXME: check!
+
+cyclic :: TinyJJ_G1_Point -> [TinyJJ_G1_Point]
+cyclic = fix $ \rec gen -> gen : rec (gen + gen)
+
+{-
+
+>>> pointGen + pointGen :: TinyJJ_G1_Point
+(10, 3)
+
+>>> scale 3 (pointGen :: TinyJJ_G1_Point)
+(10, 10)
+
+sage: TJJ(10,10) + TJJ(10,10)
+(5 : 2 : 1)
+
+>>> take 21 (cyclic pointGen)
+[(10, 10),(10, 3),(10, 10),(10, 3),(10, 10),(10, 3),(10, 10),(10, 3),(10, 10),(10, 3),(10, 10),(10, 3),(10, 10),(10, 3),(10, 10),(10, 3),(10, 10),(10, 3),(10, 10),(10, 3),(10, 10)]
+
+>>>isOnCurve @Bool (pointXY 10 10 :: TinyJJ_G1_Point)
+True
+
+>>>isOnCurve @Bool (pointXY 5 5 :: TinyJJ_G1_Point)
+False
+
+-}
 
 instance Scale Fr TinyJJ_G1_Point where
   scale n x = scale (toConstant n) x
