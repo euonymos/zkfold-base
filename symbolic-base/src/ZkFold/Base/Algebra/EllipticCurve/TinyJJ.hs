@@ -87,7 +87,7 @@ type TinyJJ_G1_Point = TinyJJ_Point Fq
 
 instance CyclicGroup TinyJJ_G1_Point where
   type ScalarFieldOf TinyJJ_G1_Point = Fr
-  pointGen = pointXY 10 10  -- FIXME: check!
+  pointGen = pointXY 9 4
 
 cyclic :: TinyJJ_G1_Point -> [TinyJJ_G1_Point]
 cyclic = fix $ \rec point -> point : rec (point + pointGen)
@@ -111,6 +111,17 @@ True
 
 >>>isOnCurve @Bool (pointXY 5 5 :: TinyJJ_G1_Point)
 False
+
+>>> gen = pointGen :: TinyJJ_G1_Point
+>>> gen
+(9, 4)
+
+>>> tinyjj = map (flip scale gen) [1 :: Integer .. 20]
+>>> tinyjj
+[(9, 4),(5, 11),(11, 6),(7, 11),(6, 5),(1, 2),(12, 5),(8, 5),(10, 10),(4, 0),(10, 3),(8, 8),(12, 8),(1, 11),(6, 8),(7, 2),(11, 7),(5, 2),(9, 9),pointInf]
+
+>>> length tinyjj
+20
 
 -}
 
