@@ -53,8 +53,6 @@ instance Field field => WeierstrassCurve "TinyJJ" field where
   weierstrassA = fromConstant (8 :: Natural)
   weierstrassB = fromConstant (8 :: Natural)
 
-type TinyJJ_Point = Weierstrass "TinyJJ" (Point Bool)
-
 -- type BLS12_381_CompressedPoint baseField =
 --   Weierstrass "BLS12-381" (CompressedPoint Bool baseField)
 
@@ -87,7 +85,7 @@ type TinyJJ_G1_Point = Weierstrass "TinyJJ" (Point Fq)
 
 instance CyclicGroup TinyJJ_G1_Point where
   type ScalarFieldOf TinyJJ_G1_Point = Fr
-  pointGen = pointXY 9 4
+  pointGen = pointXY 7 2
 
 cyclic :: TinyJJ_G1_Point -> [TinyJJ_G1_Point]
 cyclic = fix $ \rec point -> point : rec (point + pointGen)
@@ -95,30 +93,30 @@ cyclic = fix $ \rec point -> point : rec (point + pointGen)
 {-
 
 >>> pointGen + pointGen :: TinyJJ_G1_Point
-(10, 3)
+(0, 5)
 
 >>> scale 3 (pointGen :: TinyJJ_G1_Point)
-pointInf
+(3, 0)
 
 sage: TJJ(10,10) + TJJ(10,10)
 (5 : 2 : 1)
 
 >>> take 21 (cyclic pointGen)
-[(10, 10),(10, 3),pointInf,(10, 10),(10, 3),pointInf,(10, 10),(10, 3),pointInf,(10, 10),(10, 3),pointInf,(10, 10),(10, 3),pointInf,(10, 10),(10, 3),pointInf,(10, 10),(10, 3),pointInf]
+[(7, 2),(0, 5),(3, 0),(0, 8),(7, 11),pointInf,(7, 2),(0, 5),(3, 0),(0, 8),(7, 11),pointInf,(7, 2),(0, 5),(3, 0),(0, 8),(7, 11),pointInf,(7, 2),(0, 5),(3, 0)]
 
->>>isOnCurve @Bool (pointXY 10 10 :: TinyJJ_G1_Point)
+>>>isOnCurve (pointXY 10 10 :: TinyJJ_G1_Point)
 True
 
->>>isOnCurve @Bool (pointXY 5 5 :: TinyJJ_G1_Point)
+>>>isOnCurve (pointXY 5 5 :: TinyJJ_G1_Point)
 False
 
 >>> gen = pointGen :: TinyJJ_G1_Point
 >>> gen
-(9, 4)
+(7, 2)
 
 >>> tinyjj = map (flip scale gen) [1 :: Integer .. 20]
 >>> tinyjj
-[(9, 4),(5, 11),(11, 6),(7, 11),(6, 5),(1, 2),(12, 5),(8, 5),(10, 10),(4, 0),(10, 3),(8, 8),(12, 8),(1, 11),(6, 8),(7, 2),(11, 7),(5, 2),(9, 9),pointInf]
+[(7, 2),(0, 5),(3, 0),(0, 8),(7, 11),pointInf,(7, 2),(0, 5),(3, 0),(0, 8),(7, 11),pointInf,(7, 2),(0, 5),(3, 0),(0, 8),(7, 11),pointInf,(7, 2),(0, 5)]
 
 >>> length tinyjj
 20
