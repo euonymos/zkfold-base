@@ -1,54 +1,56 @@
 module ZkFold.Symbolic.Cardano.Contracts.ZkLogin
-    ( zkLogin
-    , Certificate (..)
-    , Date
-    , ClientId
-    , UserToken (..)
+    ( PublicInput
+    , zkLogin
+    , zkLoginNoSig
     ) where
 
-import           ZkFold.Base.Algebra.Basic.Number
-import           ZkFold.Symbolic.Algorithms.RSA
-import           ZkFold.Symbolic.Class
+import           Prelude                              (($))
+
+import           ZkFold.Symbolic.Algorithms.Hash.SHA2
+import qualified ZkFold.Symbolic.Algorithms.RSA       as RSA
 import           ZkFold.Symbolic.Data.Bool
 import           ZkFold.Symbolic.Data.ByteString
-import           ZkFold.Symbolic.Data.Combinators
 import           ZkFold.Symbolic.Data.Eq
-import           ZkFold.Symbolic.Data.Ord
-import           ZkFold.Symbolic.Data.UInt
+import           ZkFold.Symbolic.Data.JWT
+import           ZkFold.Symbolic.Data.JWT.Google
+import           ZkFold.Symbolic.Data.JWT.RS256
+import           ZkFold.Symbolic.Data.VarByteString
 
-data Certificate ctx
-    = Certificate
-        { kid :: ByteString 320 ctx
-        , e   :: UInt 32 'Auto ctx
-        , n   :: UInt KeyLength 'Auto ctx
-        }
-
-type Date ctx = UInt 64 'Auto ctx
-
-type ClientId ctx = ByteString 256 ctx
-
-data UserToken ctx
-    = UserToken
-        { validUntil :: Date ctx
-        , aud        :: ByteString 256 ctx
-        , signature  :: Signature ctx
-        }
-
-tokenBits :: Symbolic ctx => UserToken ctx -> ByteString 320 ctx
-tokenBits UserToken{..} = from validUntil `append` aud
+type PublicInput ctx = ByteString 256 ctx
 
 zkLogin
     :: forall ctx
-    .  RSA ctx 320
-    => KnownRegisters ctx 64 'Auto
-    => KnownNat (Ceil (GetRegisterSize (BaseField ctx) 64 'Auto) OrdWord)
-    => Certificate ctx
-    -> UserToken ctx
-    -> Date ctx
-    -> ClientId ctx
+    .  RSA.RSA 2048 10328 ctx
+    => TokenBits (GooglePayload ctx)
+    => TokenHeader ctx
+    -> GooglePayload ctx
+    -> Signature "RS256" ctx
+    -> ByteString 64 ctx
+    -> ByteString 256 ctx
+    -> Certificate ctx
+    -> PublicInput ctx
     -> Bool ctx
-zkLogin Certificate{..} token@UserToken{..} date clientId = sigValid && dateValid && audValid
+zkLogin jHeader jPayload jSignature amount recipient certificate pi = tokenValid && piValid
     where
-        dateValid = validUntil < date
-        audValid  = aud == clientId
-        sigValid  = verify (tokenBits token) signature (PublicKey e n)
+        (tokenValid, tokenHash) = verifyJWT @"RS256" jHeader jPayload jSignature certificate
+        truePi = sha2Var @"SHA256" $ plEmail jPayload @+ fromByteString tokenHash @+ fromByteString amount @+ fromByteString recipient
+        piValid = truePi == pi
+
+
+zkLoginNoSig
+    :: forall ctx
+    .  RSA.RSA 2048 10328 ctx
+    => TokenBits (GooglePayload ctx)
+    => TokenHeader ctx
+    -> GooglePayload ctx
+    -> Signature "RS256" ctx
+    -> ByteString 64 ctx
+    -> ByteString 256 ctx
+    -> Certificate ctx
+    -> PublicInput ctx
+    -> Bool ctx
+zkLoginNoSig jHeader jPayload _ amount recipient _ pi = piValid
+    where
+        tokenHash = sha2Var @"SHA256" $ tokenBits jHeader jPayload
+        truePi = sha2Var @"SHA256" $ plEmail jPayload @+ fromByteString tokenHash @+ fromByteString amount @+ fromByteString recipient
+        piValid = truePi == pi
