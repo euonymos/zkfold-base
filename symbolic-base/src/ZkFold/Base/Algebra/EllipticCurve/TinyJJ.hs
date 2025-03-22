@@ -41,10 +41,10 @@ type Fr = Zp TinyJJ_Scalar -- F20
 type Fq = Zp TinyJJ_Base   -- F13
 
 -- -- Extension F13^4
--- type IP1 = "IP1"
--- instance IrreduciblePoly Fq IP1 where
---     irreduciblePoly = toPoly [2, 0, 0, 0, 1]  -- 2 + t^4
--- type Fq4 = Ext4 Fq IP1 -- FIXME: Ext4 is missing
+type IP1 = "IP1"
+instance IrreduciblePoly Fq IP1 where
+    irreduciblePoly = toPoly [2, 0, 0, 0, 1]  -- 2 + t^4
+type Fq4 = Ext4 Fq IP1 -- FIXME: Ext4 is missing
 
 
 ------------------------------------- TinyJJ --------------------------------------
@@ -128,8 +128,8 @@ instance Scale Fr TinyJJ_G1_Point where
 
 ------------------------------------ TinyJJ G2 ------------------------------------
 
-{-  FIXME: figure this out!
-type TinyJJ_G2_Point = TinyJJ_Point Fq4
+-- type TinyJJ_G2_Point = TinyJJ_Point Fq4
+type TinyJJ_G2_Point = Weierstrass "TinyJJ" (Point Fq4)
 
 -- type BLS12_381_G2_CompressedPoint = TinyJJ_CompressedPoint Fq2
 
@@ -139,6 +139,46 @@ instance CyclicGroup TinyJJ_G2_Point where
 
 instance Scale Fr TinyJJ_G2_Point where
   scale n x = scale (toConstant n) x
+
+{-
+
+>>> pointGen + pointGen :: TinyJJ_G2_Point
+(Ext4 4 0 1 0, Ext4 0 12 0 0)
+
+>>> scale 3 (pointGen :: TinyJJ_G2_Point)
+(Ext4 2 0 10 0, Ext4 0 7 0 5)
+
+sage: TJJ(10,10) + TJJ(10,10)
+(5 : 2 : 1)
+
+>>> take 21 (cyclic pointGen)
+[(7, 2),(0, 5),(3, 0),(0, 8),(7, 11),pointInf,(7, 2),(0, 5),(3, 0),(0, 8),(7, 11),pointInf,(7, 2),(0, 5),(3, 0),(0, 8),(7, 11),pointInf,(7, 2),(0, 5),(3, 0)]
+
+>>>isOnCurve (pointXY 10 10 :: TinyJJ_G2_Point)
+No instance for `Num (Ext4 Fq IP1)' arising from the literal `10'
+In the first argument of `pointXY', namely `10'
+In the first argument of `isOnCurve', namely
+  `(pointXY 10 10 :: TinyJJ_G2_Point)'
+In the expression: isOnCurve (pointXY 10 10 :: TinyJJ_G2_Point)
+
+>>>isOnCurve (pointXY 5 5 :: TinyJJ_G2_Point)
+No instance for `Num (Ext4 Fq IP1)' arising from the literal `5'
+In the first argument of `pointXY', namely `5'
+In the first argument of `isOnCurve', namely
+  `(pointXY 5 5 :: TinyJJ_G2_Point)'
+In the expression: isOnCurve (pointXY 5 5 :: TinyJJ_G2_Point)
+
+>>> gen = pointGen :: TinyJJ_G2_Point
+>>> gen
+(Ext4 7 0 9 0, Ext4 0 11 0 1)
+
+>>> tinyjj = map (flip scale gen) [1 :: Integer .. 25]
+>>> tinyjj
+[(Ext4 7 0 9 0, Ext4 0 11 0 1),(Ext4 4 0 1 0, Ext4 0 12 0 0),(Ext4 2 0 10 0, Ext4 0 7 0 5),(Ext4 2 0 6 0, Ext4 0 4 0 3),(Ext4 10 0 6 0, Ext4 0 2 0 7),(Ext4 3 0 9 0, Ext4 0 10 0 2),(Ext4 0 0 12 0, Ext4 0 12 0 3),(Ext4 0 0 0 0, Ext4 0 10 0 1),(Ext4 8 0 3 0, Ext4 0 1 0 3),(Ext4 8 0 9 0, Ext4 0 3 0 3),(Ext4 10 0 12 0, Ext4 0 12 0 4),(Ext4 12 0 10 0, Ext4 0 0 0 0),(Ext4 10 0 12 0, Ext4 0 1 0 9),(Ext4 8 0 9 0, Ext4 0 10 0 10),(Ext4 8 0 3 0, Ext4 0 12 0 10),(Ext4 0 0 0 0, Ext4 0 3 0 12),(Ext4 0 0 12 0, Ext4 0 1 0 10),(Ext4 3 0 9 0, Ext4 0 3 0 11),(Ext4 10 0 6 0, Ext4 0 11 0 6),(Ext4 2 0 6 0, Ext4 0 9 0 10),(Ext4 2 0 10 0, Ext4 0 6 0 8),(Ext4 4 0 1 0, Ext4 0 1 0 0),(Ext4 7 0 9 0, Ext4 0 2 0 12),pointInf,(Ext4 7 0 9 0, Ext4 0 11 0 1)]
+
+>>> length tinyjj
+25
+
 -}
 
 ------------------------------------ Encoding ------------------------------------
