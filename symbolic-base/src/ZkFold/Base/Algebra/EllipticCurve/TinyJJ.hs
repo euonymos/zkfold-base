@@ -53,7 +53,7 @@ instance Field field => WeierstrassCurve "TinyJJ" field where
   weierstrassA = fromConstant (8 :: Natural)
   weierstrassB = fromConstant (8 :: Natural)
 
-type TinyJJ_Point baseField = Weierstrass "TinyJJ" (Point Bool baseField)
+type TinyJJ_Point = Weierstrass "TinyJJ" (Point Bool)
 
 -- type BLS12_381_CompressedPoint baseField =
 --   Weierstrass "BLS12-381" (CompressedPoint Bool baseField)
@@ -81,7 +81,7 @@ type TinyJJ_Point baseField = Weierstrass "TinyJJ" (Point Bool baseField)
 
 ------------------------------------ TinyJJ G1 ------------------------------------
 
-type TinyJJ_G1_Point = TinyJJ_Point Fq
+type TinyJJ_G1_Point = Weierstrass "TinyJJ" (Point Fq)
 
 -- type TinyJJ_G1_CompressedPoint = TinyJJ_CompressedPoint Fq
 
