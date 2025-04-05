@@ -92,34 +92,22 @@ cyclic = fix $ \rec point -> point : rec (point + pointGen)
 
 {-
 
->>> pointGen + pointGen :: TinyJJ_G1_Point
-(0, 5)
+>>> gen1 = pointGen :: TinyJJ_G1_Point
+>>> gen2 = pointGen :: TinyJJ_G2_Point
 
->>> scale 3 (pointGen :: TinyJJ_G1_Point)
-(3, 0)
+>>> gg1 = map (flip scale gen1) [1 :: Integer .. 5]
+>>> gg2 = map (flip scale gen2) [1 :: Integer .. 5]
 
-sage: TJJ(10,10) + TJJ(10,10)
-(5 : 2 : 1)
+>>> gg1
+[(7, 2),(8, 8),(8, 5),(7, 11),pointInf]
 
->>> take 21 (cyclic pointGen)
-[(7, 2),(0, 5),(3, 0),(0, 8),(7, 11),pointInf,(7, 2),(0, 5),(3, 0),(0, 8),(7, 11),pointInf,(7, 2),(0, 5),(3, 0),(0, 8),(7, 11),pointInf,(7, 2),(0, 5),(3, 0)]
+>>> gg2
+[(Ext4 7 0 9 0, Ext4 0 11 0 1),(Ext4 7 0 4 0, Ext4 0 10 0 5),(Ext4 7 0 4 0, Ext4 0 3 0 8),(Ext4 7 0 9 0, Ext4 0 2 0 12),pointInf]
 
->>>isOnCurve (pointXY 10 10 :: TinyJJ_G1_Point)
-True
-
->>>isOnCurve (pointXY 5 5 :: TinyJJ_G1_Point)
-False
-
->>> gen = pointGen :: TinyJJ_G1_Point
->>> gen
-(7, 2)
-
->>> tinyjj = map (flip scale gen) [1 :: Integer .. 20]
->>> tinyjj
-[(7, 2),(0, 5),(3, 0),(0, 8),(7, 11),pointInf,(7, 2),(0, 5),(3, 0),(0, 8),(7, 11),pointInf,(7, 2),(0, 5),(3, 0),(0, 8),(7, 11),pointInf,(7, 2),(0, 5)]
-
->>> length tinyjj
-20
+>>> length gg1
+5
+>>> length gg2
+5
 
 -}
 

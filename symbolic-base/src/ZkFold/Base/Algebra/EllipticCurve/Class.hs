@@ -217,7 +217,8 @@ deriving newtype instance HasPointInf point
 deriving newtype instance Planar field point
   => Planar field (Weierstrass curve point)
 instance
-  ( Conditional (BooleanOf field) (BooleanOf field)
+  ( WeierstrassCurve curve field
+  , Conditional (BooleanOf field) (BooleanOf field)
   , Conditional (BooleanOf field) field
   , Eq field
   , Field field
@@ -226,7 +227,7 @@ instance
       if isInf0 then pt1 else if isInf1 then pt0 -- additive identity
       else if x0 == x1 && y0 + y1 == zero then pointInf -- additive inverse
       else let slope = if x0 == x1 && y0 == y1
-                       then (x0 * x0 + x0 * x0 + x0 * x0) // (y0 + y0) -- tangent
+                       then (x0 * x0 + x0 * x0 + x0 * x0 + weierstrassA @curve) // (y0 + y0) -- tangent
                        else (y1 - y0) // (x1 - x0) -- secant
                x2 = slope * slope - x0 - x1
                y2 = slope * (x0 - x2) - y0
