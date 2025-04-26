@@ -37,7 +37,7 @@ instance Prime TinyJJ_Scalar
 type TinyJJ_Base = 13
 instance Prime TinyJJ_Base
 
-type Fr = Zp TinyJJ_Scalar -- F20
+type Fr = Zp TinyJJ_Scalar -- F5
 type Fq = Zp TinyJJ_Base   -- F13
 
 -- Extension F13^4
@@ -329,7 +329,7 @@ deriving via (NonZero Fq4) instance MultiplicativeGroup TinyJJ_GT
 instance Finite TinyJJ_GT where
     type Order TinyJJ_GT = TinyJJ_Scalar
 
-{-
+{- TODO
 instance Pairing TinyJJ_G1_Point TinyJJ_G2_Point TinyJJ_GT where
     pairing a b
       = TinyJJ_GT
@@ -337,5 +337,4 @@ instance Pairing TinyJJ_G1_Point TinyJJ_G2_Point TinyJJ_GT where
       $ millerAlgorithmTinyJJ param a b
       where
         param = [-1,0,0]
-
 -}
