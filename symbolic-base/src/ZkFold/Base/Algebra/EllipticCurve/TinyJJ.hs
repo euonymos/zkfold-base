@@ -40,7 +40,7 @@ instance Prime TinyJJ_Base
 type Fr = Zp TinyJJ_Scalar -- F20
 type Fq = Zp TinyJJ_Base   -- F13
 
--- -- Extension F13^4
+-- Extension F13^4
 type IP1 = "IP1"
 instance IrreduciblePoly Fq IP1 where
     irreduciblePoly = toPoly [2, 0, 0, 0, 1]  -- 2 + t^4
@@ -313,31 +313,29 @@ In the expression: isOnCurve (pointXY 5 5 :: TinyJJ_G2_Point)
 
 -- --------------------------------------- Pairing ---------------------------------------
 
--- -- | An image of a pairing is a cyclic multiplicative subgroup of @'Fq12'@
--- -- of order @'BLS12_381_Scalar'@.
--- newtype BLS12_381_GT = BLS12_381_GT Fq12
---     deriving newtype (Eq, Show, MultiplicativeSemigroup, MultiplicativeMonoid, Symbolic.Eq Bool)
+-- | An image of a pairing is a cyclic multiplicative subgroup of @'Fq4'@
+-- of order @'TinyJJ_Scalar'@.
+newtype TinyJJ_GT = TinyJJ_GT Fq4
+  deriving newtype (Eq, Show, MultiplicativeSemigroup, MultiplicativeMonoid, Symbolic.Conditional Prelude.Bool, Symbolic.Eq)
 
--- instance Exponent BLS12_381_GT Natural where
---     BLS12_381_GT a ^ p = BLS12_381_GT (a ^ p)
+instance Exponent TinyJJ_GT Natural where
+    TinyJJ_GT a ^ p = TinyJJ_GT (a ^ p)
 
--- instance Exponent BLS12_381_GT Integer where
---     BLS12_381_GT a ^ p = BLS12_381_GT (a ^ p)
+instance Exponent TinyJJ_GT Integer where
+    TinyJJ_GT a ^ p = TinyJJ_GT (a ^ p)
 
--- deriving via (NonZero Fq12) instance MultiplicativeGroup BLS12_381_GT
+deriving via (NonZero Fq4) instance MultiplicativeGroup TinyJJ_GT
 
--- instance Finite BLS12_381_GT where
---     type Order BLS12_381_GT = BLS12_381_Scalar
+instance Finite TinyJJ_GT where
+    type Order TinyJJ_GT = TinyJJ_Scalar
 
--- instance Pairing BLS12_381_G1_Point BLS12_381_G2_Point BLS12_381_GT where
---     pairing a b
---       = BLS12_381_GT
---       $ finalExponentiation @Fr
---       $ millerAlgorithmBLS12 param a b
---       where
---         param = [-1
---           ,-1, 0,-1, 0, 0,-1, 0, 0, 0, 0, 0, 0, 0, 0,-1, 0
---           , 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
---           , 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,-1, 0
---           , 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
---           ]
+{-
+instance Pairing TinyJJ_G1_Point TinyJJ_G2_Point TinyJJ_GT where
+    pairing a b
+      = TinyJJ_GT
+      $ finalExponentiation' @Fr
+      $ millerAlgorithmTinyJJ param a b
+      where
+        param = [-1,0,0]
+
+-}
