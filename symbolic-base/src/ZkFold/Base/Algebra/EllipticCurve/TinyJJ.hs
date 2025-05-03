@@ -44,7 +44,7 @@ type Fq = Zp TinyJJ_Base   -- F13
 type IP1 = "IP1"
 instance IrreduciblePoly Fq IP1 where
     irreduciblePoly = toPoly [2, 0, 0, 0, 1]  -- 2 + t^4
-type Fq4 = Ext4 Fq IP1 -- FIXME: Ext4 is missing
+type Fq4 = Ext4 Fq IP1
 
 
 ------------------------------------- TinyJJ --------------------------------------
@@ -329,12 +329,10 @@ deriving via (NonZero Fq4) instance MultiplicativeGroup TinyJJ_GT
 instance Finite TinyJJ_GT where
     type Order TinyJJ_GT = TinyJJ_Scalar
 
-{- TODO
 instance Pairing TinyJJ_G1_Point TinyJJ_G2_Point TinyJJ_GT where
     pairing a b
       = TinyJJ_GT
-      $ finalExponentiation' @Fr
-      $ millerAlgorithmTinyJJ param a b
+      $ finalExponentiation' @Fr @Fq @Fq4 @IP1
+      $ millerAlgorithmTinyJJ @"TinyJJ" @"TinyJJ" @Fq @Fq4 @IP1 @Fq4 param a b
       where
         param = [-1,0,0]
--}
