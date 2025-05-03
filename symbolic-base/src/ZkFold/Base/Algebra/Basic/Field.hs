@@ -12,7 +12,8 @@ module ZkFold.Base.Algebra.Basic.Field (
     fromZp,
     inv,
     Ext2(..),
-    Ext3(..)
+    Ext3(..),
+    Ext4(..)
     ) where
 
 import           Control.Applicative                        ((<|>))
@@ -269,6 +270,91 @@ instance Binary f => Binary (Ext2 f e) where
 
 instance (Field f, Eq f, IrreduciblePoly f e, Arbitrary f) => Arbitrary (Ext2 f e) where
     arbitrary = Ext2 <$> arbitrary <*> arbitrary
+
+
+
+--- |||||||||||||||||||||||||||||||||||||||
+
+data Ext4 f (e :: Symbol) = Ext4 f f f f
+    deriving (Eq, Show, Generic)
+
+instance Ord f => Ord (Ext4 f e) where
+--  Ext2 a b <= Ext2 c d = [b, a] <= ([d, c] :: [f])
+    Ext4 a b c d <= Ext4 a' b' c' d' = [d, c, b, a] <= ([d', c', b', a'] :: [f])
+
+instance (KnownNat (Order (Ext4 f e)), KnownNat (NumberOfBits (Ext4 f e))) => Finite (Ext4 f e) where
+    type Order (Ext4 f e) = Order f ^ 4  -- not sure about this
+
+instance {-# OVERLAPPING #-} FromConstant (Ext4 f e) (Ext4 f e)
+
+instance Field f => AdditiveSemigroup (Ext4 f e) where
+--  Ext2 a b + Ext2 c d = Ext2 (a + c) (b + d)
+    Ext4 a b c d + Ext4 a' b' c' d' = Ext4 (a + a') (b + b') (c + c') (d + d')
+
+instance Scale c f => Scale c (Ext4 f e) where
+--  scale c (Ext2 a b) = Ext2 (scale c a) (scale c b)
+    scale c (Ext4 a1 a2 a3 a4) = Ext4 (scale c a1) (scale c a2) (scale c a3) (scale c a4)
+
+instance Field f => AdditiveMonoid (Ext4 f e) where
+    zero = Ext4 zero zero zero zero
+
+instance Field f => AdditiveGroup (Ext4 f e) where
+--  negate (Ext2 a b) = Ext2 (negate a) (negate b)
+--  Ext2 a b - Ext2 c d = Ext2 (a - c) (b - d)
+    negate (Ext4 a b c d) = Ext4 (negate a) (negate b) (negate c) (negate d)
+    Ext4 a b c d - Ext4 a' b' c' d' = Ext4 (a - a') (b - b') (c - c') (d - d')
+
+instance {-# OVERLAPPING #-} (Field f, Eq f, IrreduciblePoly f e) => Scale (Ext4 f e) (Ext4 f e)
+
+instance (Field f, Eq f, IrreduciblePoly f e) => MultiplicativeSemigroup (Ext4 f e) where
+--  Ext2 a b * Ext2 c d = fromConstant (toPoly [a, b] * toPoly [c, d])
+    Ext4 a b c d * Ext4 a' b' c' d' = fromConstant (toPoly [a, b, c, d] * toPoly [a', b', c', d'])
+
+instance MultiplicativeMonoid (Ext4 f e) => Exponent (Ext4 f e) Natural where
+    (^) = natPow
+
+instance (Field f, Eq f, IrreduciblePoly f e) => MultiplicativeMonoid (Ext4 f e) where
+    one = Ext4 one zero zero zero
+
+instance Field (Ext4 f e) => Exponent (Ext4 f e) Integer where
+    (^) = intPowF
+
+instance (Field f, Eq f, IrreduciblePoly f e) => Field (Ext4 f e) where
+    finv (Ext4 a b c d) =
+        let (g, s) = eea (toPoly [a, b, c, d]) (irreduciblePoly @f @e)
+        in case fromPoly $ scaleP (one // lt g) 0 s of
+            []        -> Ext4 zero zero zero zero
+            [x]       -> Ext4 x zero zero zero
+            [x, y]    -> Ext4 x y zero zero
+            [x, y, z] -> Ext4 x y z zero
+            v         -> Ext4 (v V.! 0) (v V.! 1) (v V.! 2) (v V.! 3)
+
+    rootOfUnity n = (\r -> Ext4 r zero zero zero) <$> rootOfUnity n
+
+instance (FromConstant f f', Field f') => FromConstant f (Ext4 f' e) where
+    fromConstant e = Ext4 (fromConstant e) zero zero zero
+
+instance {-# OVERLAPPING #-} (Field f, Eq f, IrreduciblePoly f e) => FromConstant (Poly f) (Ext4 f e) where
+    fromConstant p = case fromPoly . snd $ qr p (irreduciblePoly @f @e) of
+      []        -> zero
+      [x]       -> fromConstant x
+      [x, y]    -> Ext4 x y zero zero
+      [x, y, z] -> Ext4 x y z zero
+      v         -> Ext4 (v V.! 0) (v V.! 1) (v V.! 2) (v V.! 3)
+
+instance (Field f, Eq f, IrreduciblePoly f e) => Semiring (Ext4 f e)
+
+instance (Field f, Eq f, IrreduciblePoly f e) => Ring (Ext4 f e)
+
+instance Binary f => Binary (Ext4 f e) where
+    put (Ext4 a b c d) = put a <> put b <> put c <> put d
+    get = Ext4 <$> get <*> get <*> get <*> get
+
+instance (Field f, Eq f, IrreduciblePoly f e, Arbitrary f) => Arbitrary (Ext4 f e) where
+    arbitrary = Ext4 <$> arbitrary <*> arbitrary <*> arbitrary <*> arbitrary
+
+--- ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 
 data Ext3 f (e :: Symbol) = Ext3 f f f
     deriving (Eq, Show, Generic)

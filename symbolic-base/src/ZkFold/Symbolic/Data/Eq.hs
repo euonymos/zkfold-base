@@ -127,6 +127,7 @@ instance
 
 instance Eq field => Eq (Ext2 field i)
 instance Eq field => Eq (Ext3 field i)
+instance Eq field => Eq (Ext4 field i)
 
 class GConditional (GBooleanOf u) u => GEq u where
     type GBooleanOf u

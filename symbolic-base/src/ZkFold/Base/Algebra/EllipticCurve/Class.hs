@@ -26,11 +26,12 @@ module ZkFold.Base.Algebra.EllipticCurve.Class
   , AffinePoint (..)
   ) where
 
+-- import           GHC.IO                           (unsafePerformIO)
 import           Data.Kind                        (Type)
 import           Data.String                      (fromString)
 import           GHC.Generics
 import           GHC.TypeLits                     (Symbol)
-import           Prelude                          (Integer, return, type (~), ($), (>>=))
+import           Prelude                          (Integer, return, type (~), ($), (>>=))  -- putStrLn, show
 import qualified Prelude
 import           Test.QuickCheck                  hiding (scale)
 
@@ -117,6 +118,8 @@ type CycleOfCurves g1 g2 =
   Weierstrass curves have @a = zero@ and nonzero @b@ and we do too.
 -}
 class Field field => WeierstrassCurve (curve :: Symbol) field where
+  weierstrassA :: field
+  weierstrassA = zero
   weierstrassB :: field
 
 {- | A twisted Edwards curve is defined by the equation:
@@ -194,7 +197,9 @@ instance
     type BaseFieldOf (Weierstrass curve (Point field)) = field
     isOnCurve (Weierstrass (Point x y isInf)) =
       if isInf then x == zero else
-      let b = weierstrassB @curve in y*y == x*x*x + b
+        let a = weierstrassA @curve
+            b = weierstrassB @curve
+        in y*y == x*x*x + a*x + b
 deriving newtype instance
   ( SymbolicEq field
   ) => SymbolicData (Weierstrass curve (Point field))
@@ -212,7 +217,8 @@ deriving newtype instance HasPointInf point
 deriving newtype instance Planar field point
   => Planar field (Weierstrass curve point)
 instance
-  ( Conditional (BooleanOf field) (BooleanOf field)
+  ( WeierstrassCurve curve field
+  , Conditional (BooleanOf field) (BooleanOf field)
   , Conditional (BooleanOf field) field
   , Eq field
   , Field field
@@ -221,11 +227,11 @@ instance
       if isInf0 then pt1 else if isInf1 then pt0 -- additive identity
       else if x0 == x1 && y0 + y1 == zero then pointInf -- additive inverse
       else let slope = if x0 == x1 && y0 == y1
-                       then (x0 * x0 + x0 * x0 + x0 * x0) // (y0 + y0) -- tangent
+                       then (x0 * x0 + x0 * x0 + x0 * x0 + weierstrassA @curve) // (y0 + y0) -- tangent
                        else (y1 - y0) // (x1 - x0) -- secant
                x2 = slope * slope - x0 - x1
                y2 = slope * (x0 - x2) - y0
-            in pointXY x2 y2
+           in pointXY x2 y2
 instance
   ( WeierstrassCurve curve field
   , Conditional (BooleanOf field) (BooleanOf field)

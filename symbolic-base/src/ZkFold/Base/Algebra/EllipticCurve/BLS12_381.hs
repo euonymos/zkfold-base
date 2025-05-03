@@ -300,6 +300,10 @@ instance Finite BLS12_381_GT where
 instance Pairing BLS12_381_G1_Point BLS12_381_G2_Point BLS12_381_GT where
     pairing a b
       = BLS12_381_GT
+
+      -- $ finalExponentiation @Fr @Fq2 @Fq12 @IP2 @IP3
+      -- $ millerAlgorithmBLS12 @"BLS12-381-G1" @"BLS12-381-G2" @Fq @Fq2 @_ @_ @Fq12 param a b
+
       $ finalExponentiation @Fr
       $ millerAlgorithmBLS12 param a b
       where

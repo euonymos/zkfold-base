@@ -69,6 +69,7 @@ instance (KnownNat n, Conditional bool x) => Conditional bool (Vector n x) where
 
 instance Conditional bool field => Conditional bool (Ext2 field i)
 instance Conditional bool field => Conditional bool (Ext3 field i)
+instance Conditional bool field => Conditional bool (Ext4 field i)
 
 instance
   ( Conditional b x0
